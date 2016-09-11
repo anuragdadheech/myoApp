@@ -3,6 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="listener">#d8d5f2</color>
-    <color name="speaker">#d5edc9</color>
+    <color name="listener">#33FF4081</color>
+    <color name="speaker">#33303F9F</color>
+    <color name="btn_learn">#88a8ea</color>
+    <color name="border">#99303F9F</color>
 </resources>

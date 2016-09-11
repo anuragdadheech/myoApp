@@ -3,7 +3,6 @@ package com.mavericks.myocontroller;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -14,6 +13,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -42,7 +43,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -55,16 +55,12 @@ public class MainActivity extends AppCompatActivity {
     private static final float ROTATE_THRESHOLD = 15;
     private static final float THUMP_THRESHOLD = 25;
     private static final int SPEECH_REQUEST_CODE = 5010;
-    private TextView motion;
 
-    private TextView t1;
-
-    private TextView rotate;
-    private TextView swipe;
-    private TextView thump;
+    private Button btnLearn;
     private ViewSwitcher viewSwitcher;
     private RecyclerView recyclerView;
     private ConversationAdapter conversationAdapter;
+    private TextView deviceInfo;
 
     TextToSpeech t2s;
 
@@ -83,22 +79,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        t1 = (TextView) findViewById(R.id.textView1);
-//        t2 = (TextView) findViewById(R.id.textView2);
-//        t3 = (TextView) findViewById(R.id.textView3);
-//        t4 = (TextView) findViewById(R.id.textView4);
         viewSwitcher = (ViewSwitcher) findViewById(R.id.vs);
-        motion = (TextView) findViewById(R.id.motion);
-        rotate = (TextView) findViewById(R.id.rotate);
-        swipe = (TextView) findViewById(R.id.swipe);
-        thump = (TextView) findViewById(R.id.thump);
+        btnLearn = (Button) findViewById(R.id.btn_learn);
+        deviceInfo = (TextView) findViewById(R.id.device_info);
+        btnLearn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, VideoActivity.class);
+                startActivity(i);
+            }
+        });
         if (null == recyclerView || null == conversationAdapter) {
             recyclerView = (RecyclerView) findViewById(R.id.rv_chat);
             conversationAdapter = new ConversationAdapter();
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             recyclerView.setAdapter(conversationAdapter);
         }
-
+        deviceInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onScanActionSelected();
+            }
+        });
         getGestureList();
         Hub hub = Hub.getInstance();
         if (!hub.init(this)) {
@@ -137,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         // arm. This lets Myo know which arm it's on and which way it's facing.
         @Override
         public void onArmSync(Myo myo, long timestamp, Arm arm, XDirection xDirection) {
-//            t2.setText(myo.getArm() == Arm.LEFT ? "Left arm sync" : "Right arm sync");
+//            deviceInfo.setText("Double tap to start");
         }
 
         // onArmUnsync() is called whenever Myo has detected that it was moved from a stable position on a person's arm after
@@ -145,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         // when Myo is moved around on the arm.
         @Override
         public void onArmUnsync(Myo myo, long timestamp) {
-//            t2.setText("Arm unsynced");
+//            deviceInfo.setText("Sync Device");
         }
 
         // onUnlock() is called whenever a synced Myo has been unlocked. Under the standard locking
@@ -167,14 +169,17 @@ public class MainActivity extends AppCompatActivity {
             currentPose = pose;
             switch (pose) {
                 case UNKNOWN:
-                    t1.setText("Unknown");
+//                    t1.setText("Unknown");
                     break;
                 case REST:
-                    t1.setText("Rest");
+//                    t1.setText("Rest");
                     break;
                 case DOUBLE_TAP:
                     resetDegreesOfFreedom();
                     myo.vibrate(Myo.VibrationType.MEDIUM);
+                    if (null != viewSwitcher) {
+                        viewSwitcher.setDisplayedChild(1);
+                    }
                     if (StringUtils.isNotEmpty(currentSpokenSentence)) {
                         Bundle params = new Bundle();
                         params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
@@ -201,10 +206,6 @@ public class MainActivity extends AppCompatActivity {
                         conversationAdapter.setConversation(conversation);
                         recyclerView.smoothScrollToPosition(conversationAdapter.getItemCount() - 1);
                         currentSpokenSentence = "";
-                        if (null != viewSwitcher) {
-                            viewSwitcher.setDisplayedChild(1);
-                        }
-
 
                     }
                     String restText = "";
@@ -216,19 +217,19 @@ public class MainActivity extends AppCompatActivity {
                             restText = "Right arm double tap";
                             break;
                     }
-                    t1.setText(restText);
+//                    t1.setText(restText);
                     break;
                 case FIST:
-                    t1.setText("Fist");
+//                    t1.setText("Fist");
                     break;
                 case WAVE_IN:
-                    t1.setText("Wave in");
+//                    t1.setText("Wave in");
                     break;
                 case WAVE_OUT:
-                    t1.setText("Wave out");
+//                    t1.setText("Wave out");
                     break;
                 case FINGERS_SPREAD:
-                    t1.setText("Finger spread");
+//                    t1.setText("Finger spread");
                     break;
             }
         }
@@ -264,9 +265,9 @@ public class MainActivity extends AppCompatActivity {
                 resetValues = false;
 
             }
-            thump.setText("Thump: " + String.valueOf(pitchW) + "\n Thump Default: " + pitchDefault);
-            rotate.setText("Rotate: " + String.valueOf(rollW) + "\n Rotate Default: " + rollDefault);
-            swipe.setText("Swipe: " + String.valueOf(yawW) + "\n Swipe Default: " + yawDefault);
+//            thump.setText("Thump: " + String.valueOf(pitchW) + "\n Thump Default: " + pitchDefault);
+//            rotate.setText("Rotate: " + String.valueOf(rollW) + "\n Rotate Default: " + rollDefault);
+//            swipe.setText("Swipe: " + String.valueOf(yawW) + "\n Swipe Default: " + yawDefault);
 
             Motion m = getAction(rollW, pitchW, yawW);
             if (m != Motion.NONE && currentPose != Pose.UNKNOWN && currentPose != Pose.DOUBLE_TAP && currentPose != Pose.REST) {
@@ -280,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            motion.setText(m.name());
+//            motion.setText(m.name());
 
         }
 
@@ -333,6 +334,9 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Hub.getInstance().addListener(mListener);
         Hub.getInstance().setLockingPolicy(Hub.LockingPolicy.NONE);
+        if(null != Hub.getInstance().getConnectedDevices() && Hub.getInstance().getConnectedDevices().size() > 0) {
+            deviceInfo.setText("Double tap to start");
+        }
     }
 
     private void resetDegreesOfFreedom() {

@@ -1,6 +1,7 @@
 package com.mavericks.myocontroller.network;
 
 import com.mavericks.myocontroller.models.GestureList;
+import com.mavericks.myocontroller.models.VideoList;
 
 import java.util.List;
 
@@ -34,6 +35,21 @@ public class NetworkService {
 
             @Override
             public void onFailure(Call<GestureList> call, Throwable t) {
+                callback.onFailure(call, t);
+            }
+        });
+    }
+
+    public void getVideoList(final Callback<VideoList> callback){
+        Call<VideoList> call = networkAPI.getVideoList();
+        call.enqueue(new Callback<VideoList>() {
+            @Override
+            public void onResponse(Call<VideoList> call, retrofit2.Response<VideoList> response) {
+                callback.onResponse(call, response);
+            }
+
+            @Override
+            public void onFailure(Call<VideoList> call, Throwable t) {
                 callback.onFailure(call, t);
             }
         });

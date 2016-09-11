@@ -4,8 +4,10 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mavericks.myocontroller.models.GestureList;
+import com.mavericks.myocontroller.models.VideoList;
 
 /**
  * @author Anurag
@@ -31,6 +33,15 @@ public class ResponseTranslator {
     public GestureList getGestureList(JsonObject gesturesJson) {
         try {
             return ResponseTranslator.getSharedInstance().gson.fromJson(gesturesJson, GestureList.class);
+        } catch (Exception e) {
+            Log.e(ResponseTranslator.class.getSimpleName() + ": IO error", "IO error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public VideoList getVideoList(JsonArray videoJson) {
+        try {
+            return ResponseTranslator.getSharedInstance().gson.fromJson(videoJson, VideoList.class);
         } catch (Exception e) {
             Log.e(ResponseTranslator.class.getSimpleName() + ": IO error", "IO error: " + e.getMessage());
         }
