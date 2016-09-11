@@ -30,7 +30,7 @@ public class ResponseTranslator {
 
     public GestureList getGestureList(JsonObject gesturesJson) {
         try {
-            return ResponseTranslator.getSharedInstance().gson.fromJson(gesturesJson.getAsJsonObject(ResponseKeys.DATA), GestureList.class);
+            return ResponseTranslator.getSharedInstance().gson.fromJson(gesturesJson, GestureList.class);
         } catch (Exception e) {
             Log.e(ResponseTranslator.class.getSimpleName() + ": IO error", "IO error: " + e.getMessage());
         }

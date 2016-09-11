@@ -9,61 +9,56 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.mavericks.myocontroller.MainActivity">
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_marginTop="50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
-    <TextView
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/textView1"
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
-    <TextView
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/textView2"
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:layout_marginTop="5dp"
-        android:layout_below="@+id/textView3"
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <ViewSwitcher
+        android:id="@+id/vs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="tv1"
+                android:layout_marginTop="30dp"
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:text="motion"
+                android:layout_below="@id/textView1"
+                android:layout_marginTop="30dp"
+                android:id="@+id/motion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
 
-    <TextView
-        android:text="motion"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/textView4"
-        android:id="@+id/motion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:text="rotate"
+                android:layout_marginTop="30dp"
+                android:layout_below="@+id/motion"
+                android:id="@+id/rotate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
+            <TextView
+                android:text="swipe"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/rotate"
+                android:id="@+id/swipe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <TextView
-        android:text="rotate"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/motion"
-        android:id="@+id/rotate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:text="swipe"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/rotate"
-        android:id="@+id/swipe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:text="thump"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/swipe"
-        android:id="@+id/thump"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:text="thump"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/swipe"
+                android:id="@+id/thump"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_chat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </ViewSwitcher>
+
 </RelativeLayout>

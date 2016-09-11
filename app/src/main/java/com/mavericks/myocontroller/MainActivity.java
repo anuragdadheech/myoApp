@@ -2,24 +2,29 @@ package com.mavericks.myocontroller;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mavericks.myocontroller.adapters.ConversationAdapter;
 import com.mavericks.myocontroller.helpers.ResourceAccessHelper;
 import com.mavericks.myocontroller.helpers.ResponseTranslator;
-import com.mavericks.myocontroller.models.Message;
 import com.mavericks.myocontroller.models.GestureList;
+import com.mavericks.myocontroller.models.Message;
 import com.mavericks.myocontroller.models.Motion;
 import com.mavericks.myocontroller.network.NetworkService;
 import com.thalmic.myo.AbstractDeviceListener;
@@ -37,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -49,15 +55,16 @@ public class MainActivity extends AppCompatActivity {
     private static final float ROTATE_THRESHOLD = 15;
     private static final float THUMP_THRESHOLD = 25;
     private static final int SPEECH_REQUEST_CODE = 5010;
-    private TextView t1;
-    private TextView t2;
-    private TextView t3;
-    private TextView t4;
     private TextView motion;
+
+    private TextView t1;
 
     private TextView rotate;
     private TextView swipe;
     private TextView thump;
+    private ViewSwitcher viewSwitcher;
+    private RecyclerView recyclerView;
+    private ConversationAdapter conversationAdapter;
 
     TextToSpeech t2s;
 
@@ -76,6 +83,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        t1 = (TextView) findViewById(R.id.textView1);
+//        t2 = (TextView) findViewById(R.id.textView2);
+//        t3 = (TextView) findViewById(R.id.textView3);
+//        t4 = (TextView) findViewById(R.id.textView4);
+        viewSwitcher = (ViewSwitcher) findViewById(R.id.vs);
+        motion = (TextView) findViewById(R.id.motion);
+        rotate = (TextView) findViewById(R.id.rotate);
+        swipe = (TextView) findViewById(R.id.swipe);
+        thump = (TextView) findViewById(R.id.thump);
+        if (null == recyclerView || null == conversationAdapter) {
+            recyclerView = (RecyclerView) findViewById(R.id.rv_chat);
+            conversationAdapter = new ConversationAdapter();
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(conversationAdapter);
+        }
+
         getGestureList();
         Hub hub = Hub.getInstance();
         if (!hub.init(this)) {
@@ -98,23 +121,23 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onConnect(Myo myo, long timestamp) {
             // Set the text color of the text view to cyan when a Myo connects.
-            t3.setText("Connected");
-            t3.setTextColor(Color.CYAN);
+//            t3.setText("Connected");
+//            t3.setTextColor(Color.CYAN);
         }
 
         // onDisconnect() is called whenever a Myo has been disconnected.
         @Override
         public void onDisconnect(Myo myo, long timestamp) {
             // Set the text color of the text view to red when a Myo disconnects.
-            t3.setText("Disconnected");
-            t3.setTextColor(Color.RED);
+//            t3.setText("Disconnected");
+//            t3.setTextColor(Color.RED);
         }
 
         // onArmSync() is called whenever Myo has recognized a Sync Gesture after someone has put it on their
         // arm. This lets Myo know which arm it's on and which way it's facing.
         @Override
         public void onArmSync(Myo myo, long timestamp, Arm arm, XDirection xDirection) {
-            t2.setText(myo.getArm() == Arm.LEFT ? "Left arm sync" : "Right arm sync");
+//            t2.setText(myo.getArm() == Arm.LEFT ? "Left arm sync" : "Right arm sync");
         }
 
         // onArmUnsync() is called whenever Myo has detected that it was moved from a stable position on a person's arm after
@@ -122,21 +145,21 @@ public class MainActivity extends AppCompatActivity {
         // when Myo is moved around on the arm.
         @Override
         public void onArmUnsync(Myo myo, long timestamp) {
-            t2.setText("Arm unsynced");
+//            t2.setText("Arm unsynced");
         }
 
         // onUnlock() is called whenever a synced Myo has been unlocked. Under the standard locking
         // policy, that means poses will now be delivered to the listener.
         @Override
         public void onUnlock(Myo myo, long timestamp) {
-            t4.setText("Unlocked");
+//            t4.setText("Unlocked");
         }
 
         // onLock() is called whenever a synced Myo has been locked. Under the standard locking
         // policy, that means poses will no longer be delivered to the listener.
         @Override
         public void onLock(Myo myo, long timestamp) {
-            t4.setText("Locked");
+//            t4.setText("Locked");
         }
 
         @Override
@@ -153,11 +176,36 @@ public class MainActivity extends AppCompatActivity {
                     resetDegreesOfFreedom();
                     myo.vibrate(Myo.VibrationType.MEDIUM);
                     if (StringUtils.isNotEmpty(currentSpokenSentence)) {
-                        t2s.speak(currentSpokenSentence, TextToSpeech.QUEUE_FLUSH, null);
+                        Bundle params = new Bundle();
+                        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "");
+                        t2s.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                            @Override
+                            public void onStart(String s) {
+
+                            }
+
+                            @Override
+                            public void onDone(String s) {
+                                showGoogleInputDialog();
+
+                            }
+
+                            @Override
+                            public void onError(String s) {
+
+                            }
+                        });
+                        t2s.speak(currentSpokenSentence, TextToSpeech.QUEUE_FLUSH, params, "uniqueId");
                         Message msg = new Message(currentSpokenSentence, true);
                         conversation.add(msg);
+                        conversationAdapter.setConversation(conversation);
+                        recyclerView.smoothScrollToPosition(conversationAdapter.getItemCount() - 1);
                         currentSpokenSentence = "";
-                        showGoogleInputDialog();
+                        if (null != viewSwitcher) {
+                            viewSwitcher.setDisplayedChild(1);
+                        }
+
+
                     }
                     String restText = "";
                     switch (myo.getArm()) {
@@ -221,11 +269,12 @@ public class MainActivity extends AppCompatActivity {
             swipe.setText("Swipe: " + String.valueOf(yawW) + "\n Swipe Default: " + yawDefault);
 
             Motion m = getAction(rollW, pitchW, yawW);
-            if (m != Motion.NONE && (currentPose != Pose.UNKNOWN || currentPose != Pose.DOUBLE_TAP || currentPose != Pose.REST)) {
+            if (m != Motion.NONE && currentPose != Pose.UNKNOWN && currentPose != Pose.DOUBLE_TAP && currentPose != Pose.REST) {
                 if (null != gestureList && null != currentPose && null != gestureList.get(m.name())) {
                     String text = gestureList.get(m.name()).get(currentPose.name());
                     if (StringUtils.isNotEmpty(text)) {
                         currentSpokenSentence += text + " ";
+                        currentPose = Pose.UNKNOWN;
                     }
                 }
 
@@ -282,16 +331,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        t1 = (TextView) findViewById(R.id.textView1);
-        t2 = (TextView) findViewById(R.id.textView2);
-        t3 = (TextView) findViewById(R.id.textView3);
-        t4 = (TextView) findViewById(R.id.textView4);
-        motion = (TextView) findViewById(R.id.motion);
-
-        rotate = (TextView) findViewById(R.id.rotate);
-        swipe = (TextView) findViewById(R.id.swipe);
-        thump = (TextView) findViewById(R.id.thump);
-
         Hub.getInstance().addListener(mListener);
         Hub.getInstance().setLockingPolicy(Hub.LockingPolicy.NONE);
     }
@@ -324,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
     private GestureList getLocalGestureList() {
         GestureList gestureList = new GestureList();
         try {
-            String json = ResourceAccessHelper.getJsonData(this, "questions.json");
+            String json = ResourceAccessHelper.getJsonData(this, "mapping.json");
             JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
             gestureList = ResponseTranslator.getSharedInstance().getGestureList(jsonObject);
         } catch (IOException e) {
@@ -352,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, new Long(2000));
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);
         try {
             startActivityForResult(intent, SPEECH_REQUEST_CODE);
@@ -372,6 +412,9 @@ public class MainActivity extends AppCompatActivity {
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     Message msg = new Message(result.get(0), false);
                     conversation.add(msg);
+                    conversationAdapter.setConversation(conversation);
+                    recyclerView.smoothScrollToPosition(conversationAdapter.getItemCount() - 1);
+
                 }
                 break;
             }

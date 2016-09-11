@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.mavericks.myocontroller"
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
@@ -32,12 +32,11 @@ dependencies {
         maven {
             url '/Users/8302/Downloads/myo-android-sdk-0.10.0/myorepository'
         }
-        maven { url "https://raw.githubusercontent.com/layerhq/releases-android/master/releases/" }
-        maven { url "https://raw.githubusercontent.com/layerhq/Atlas-Android/master/releases/" }
     }
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:recyclerview-v7:24.1.1'
     compile('com.thalmic:myosdk:0.10.+@aar')
     compile 'commons-io:commons-io:2.4'
     compile 'org.apache.commons:commons-lang3:3.4'
@@ -45,5 +44,4 @@ dependencies {
     compile 'com.google.code.gson:gson:2.5'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
-    compile 'com.layer.atlas:layer-atlas:0.2.10'
 }
