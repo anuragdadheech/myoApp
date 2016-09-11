@@ -1,0 +1,21 @@
+gradle
+gradlew*
+.gradle
+/local.properties
+.DS_Store
+build/
+Myntra-Android/local.properties
+buildSrc/
+
+# IntelliJ IDEA
+.idea
+*.iml
+
+# Crashlytics
+com_crashlytics_export_strings.xml
+Myntra-Android/src/main/assets/crashlytics-build.properties
+Myntra-Android/*.apk
+
+# node.js
+Myntra-Android/node_modules/
+Myntra-Android/npm-debug.log
